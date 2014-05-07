@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="btnGrid">images/grid.png</file>
+        <file alias="btnLedOrange">images/ledorange.png</file>
+        <file alias="btnLedRed">images/ledred.png</file>
+        <file>images/draw_wave.png</file>
+        <file>images/settings.png</file>
+        <file alias="btnDrag">images/drag.png</file>
+        <file alias="btnTrigger">images/trigger.png</file>
+        <file alias="btnArrowRight">images/arrow-last.png</file>
+        <file alias="btnArrowLeft">images/arrow-first.png</file>
+        <file alias="btnStart">images/start.png</file>
+        <file alias="btnPause">images/pause.png</file>
+        <file alias="btnNetwork">images/iconnw.png</file>
+        <file alias="btnDefaults">images/default.png</file>
+        <file alias="btnLoad">images/load.png</file>
+        <file alias="btnSave">images/save.png</file>
+    </qresource>
+</RCC>
