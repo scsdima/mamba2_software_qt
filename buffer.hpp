@@ -15,14 +15,14 @@ namespace data_storage{
 
 struct DateTime{
     struct  {
-        unsigned char day   ;
-        unsigned char month ;
-        unsigned char year   ;
+        quint8 day   ;
+        quint8  month ;
+        quint8 year   ;
     }date;
     struct{
-        unsigned char hour;
-        unsigned char minute;
-        unsigned char second;
+        quint8 hour;
+        quint8 minute;
+        quint8 second;
     }time;
 };
 
@@ -51,7 +51,7 @@ class DataStorage{
 
 public:
 
-    enum BlockId {BlockData=0x01,BlockDateTimeMarker=0x21};
+    typedef enum {BlockData=0x01,BlockDateTimeMarker=0x21} BlockId ;
     DataStorage()
     {
         list.clear();
@@ -65,7 +65,7 @@ public:
         union {
             struct{
                 DateTime datetime;
-                unsigned char fq;
+                quint8 fq;
             };
             T data;
         };

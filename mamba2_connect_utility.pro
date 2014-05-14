@@ -14,7 +14,14 @@ RC_FILE = ti.rc
 
 SOURCE_DIR = $$PWD
 DESTDIR = $$SOURCE_DIR/../mamba2_connect_utility_build/
-include ($$SOURCE_DIR/version/version.pri)
+
+CONFIG(debug, debug|release) {
+DEFINES += QT_DEBUG
+}
+else{
+message(RELEASE BUILD)
+    include ($$SOURCE_DIR/version/version.pri)
+}
 
 #SOURCES
 SOURCES += \
@@ -62,7 +69,6 @@ INCLUDEPATH += $$SOURCE_DIR/qextserialport/ $$SOURCE_DIR/qwt/
 
 LIBS += $$DESTDIR/qwt.dll
 
-#DEFINES += QT_DEBUG
 DEFINES += COMMUNICATION_METHOD2
 
 win32 {
