@@ -8,7 +8,7 @@
   @Description: $d
 
 
- 
+
  ********************************************************************* */
 
 
@@ -26,10 +26,10 @@
 /* ********************************************************************* 
   @CONSTRUCTOR
   @Return: (MainWindow::MainWindow)
-  @Parameters: 
-	QWidget *parent 
+  @Parameters:
+    QWidget *parent
   @Description: $d
- 
+
  ********************************************************************* */
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -41,19 +41,19 @@ MainWindow::MainWindow(QWidget *parent) :
     loadUiState();
     loadConfigurationList() ;
     slot_UpdateUIState();
-    #ifdef QT_DEBUG
-            qDebug()<<"Mamba2 start";
-    #endif    
+#ifdef QT_DEBUG
+    qDebug()<<"Mamba2 start";
+#endif
 }
 
 
 /* ********************************************************************* 
   @Function name: MainWindow::setupCustomUi
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: Makes setup for custom components in UI
- 
+
  ********************************************************************* */
 void MainWindow::setupCustomUi()
 {
@@ -77,6 +77,7 @@ void MainWindow::setupCustomUi()
     ui->btnInformation->addAction(ui->actionAbout_this_tool);
     ui->btnInformation->addAction(ui->actionStart_updater);
     ui->btnInformation->addAction(ui->actionSettings);
+    /* sty;e for application to have buttons orange color*/
     qApp->setStyleSheet(" QPushButton::checked {" BUTTON_SELECTED " }");
     /*actions*/
     connect(ui->actionStart_updater,SIGNAL(triggered()),update,SLOT(slot_startUpdate()));
@@ -91,7 +92,7 @@ void MainWindow::setupCustomUi()
     connect(ui->btnSave,SIGNAL(clicked()),this,SLOT(slot_SaveFile()));
     connect(ui->btnLoad,SIGNAL(clicked()),this,SLOT(slot_LoadFile()));
     connect(ui->btnLiveView,SIGNAL(toggled(bool)),this,SLOT( slot_runStream(bool)));
-    connect(ui->btnClear,SIGNAL(clicked()),this,SLOT(slot_ClearData()));    
+    connect(ui->btnClear,SIGNAL(clicked()),this,SLOT(slot_ClearData()));
     connect(ui->sens_rot,SIGNAL(sliderReleased()),this,SLOT(slot_SetSensitivity()));
     connect(ui->extrasens_btn,SIGNAL(clicked()),this,SLOT(slot_SetSensitivity()));
     connect(ui->t1acc_cb,SIGNAL(clicked()),this,SLOT(slot_TamperSourceClicked()));
@@ -120,27 +121,27 @@ void MainWindow::setupCustomUi()
 
 /* ********************************************************************* 
   @Function name: MainWindow::applyTriggers
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: Applying trigers to sensor
- 
+
  ********************************************************************* */
 void MainWindow::slot_ApplyTriggers()
 {
-    #ifdef QT_DEBUG
-        qDebug()<<"trigger:"<<ui->graph->trigger1();//!!!!
-    #endif
+#ifdef QT_DEBUG
+    qDebug()<<"trigger:"<<ui->graph->trigger1();//!!!!
+#endif
     mamba->operation(currentAddress,FUNC_SET_CLATRIGVAL,ui->graph->trigger1());
 }
 
 /* ********************************************************************* 
   DESTRUCTOR
   @Return: (MainWindow::~MainWindow)
-  @Parameters: 
-	 
+  @Parameters:
+
   @Description:
- 
+
  ********************************************************************* */
 MainWindow::~MainWindow(){
     delete ui;
@@ -149,12 +150,12 @@ MainWindow::~MainWindow(){
 
 /* ********************************************************************* 
   @Function name: MainWindow::loadConfigurationList
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: Loads para,eters currently on server.
   May be used for load and apply to the other sensor for quick setup
- 
+
  ********************************************************************* */
 void MainWindow::loadConfigurationList(){
     QSettings settings("./config.ini",QSettings::IniFormat);
@@ -165,11 +166,11 @@ void MainWindow::loadConfigurationList(){
 
 /* ********************************************************************* 
   @Function name: MainWindow::populate_ui
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: SLOT: Populates data to form
- 
+
  ********************************************************************* */
 void MainWindow::slot_PopulateUi(){
     QString tmp;
@@ -194,29 +195,29 @@ void MainWindow::slot_PopulateUi(){
     //amplifier
     i = getPotPositionByValue(MambaCfg.PotentiometerValue);
     ui->sens_rot->setValue( i % 10);
-    ui->extrasens_btn->setChecked( i > 10);
+    ui->extrasens_btn->setChecked( i >= 10);
     ui->pot_ed->setText(QString::number(MambaCfg.PotentiometerValue));
 
 
     switch(MambaCfg.ProfieN){
     case 0:
-    break;
+        break;
     case 1:
         ui->btnGType1->setChecked(true);
-    break;
+        break;
 
     case 2:
         ui->btnGType2->setChecked(true);
         break;
 
-        case 3:
+    case 3:
         ui->btnGType3->setChecked(true);
         break;
 
-        case 4:
+    case 4:
         ui->btnGType4->setChecked(true);
         break;
-            case 5:
+    case 5:
         ui->btnGType5->setChecked(true);
         break;
 
@@ -243,12 +244,12 @@ void MainWindow::slot_PopulateUi(){
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_remove_cfg_btn_clicked
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: SLOT: remove configuration button, eletes string from
                 ini file
- 
+
  ********************************************************************* */
 void MainWindow::on_remove_cfg_btn_clicked(){
     QSettings settings("config.ini",QSettings::IniFormat);
@@ -263,12 +264,12 @@ void MainWindow::on_remove_cfg_btn_clicked(){
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_tofile_btn_clicked
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: SLOT save configuration to file button.
   It makes binary string in file config.ini in groupname of configuration
- 
+
  ********************************************************************* */
 void MainWindow::on_tofile_btn_clicked() {
     bool answ;
@@ -292,9 +293,9 @@ void MainWindow::on_tofile_btn_clicked() {
 
 /* ********************************************************************* 
   @Function name: MainWindow::slot_UpdateUIState
-  @Return: (void) 
-  @Parameters: 
-	bool turn_on 
+  @Return: (void)
+  @Parameters:
+    bool turn_on
   @Description: Update Ui and enables checks of buttons according
                 to system state
 
@@ -349,11 +350,11 @@ void MainWindow::slot_UpdateUIState(){
 
 /* ********************************************************************* 
   @Function name: MainWindow::slot_Print
-  @Return: (void) 
-  @Parameters: 
-	const QString text 
+  @Return: (void)
+  @Parameters:
+    const QString text
   @Description: Orinting text to output of mainwindow
- 
+
  ********************************************************************* */
 void MainWindow::slot_Print(const QString text) {
     this->statusBar()->showMessage(tr(text.toLatin1()));
@@ -362,11 +363,11 @@ void MainWindow::slot_Print(const QString text) {
 
 /* ********************************************************************* 
   @Function name: MainWindow::processStatus
-  @Return: (void) 
-  @Parameters: 
-	quint32 val 
+  @Return: (void)
+  @Parameters:
+    quint32 val
   @Description: Checks status regoster
- 
+
  ********************************************************************* */
 void MainWindow::processStatus(quint32 val) {
     static Status_t status_old;
@@ -385,11 +386,11 @@ void MainWindow::processStatus(quint32 val) {
 
 /* ********************************************************************* 
   @Function name: MainWindow::enableTester
-  @Return: (void) 
-  @Parameters: 
-	bool en 
+  @Return: (void)
+  @Parameters:
+    bool en
   @Description: Ebnables tester controls on MainWindow
- 
+
  ********************************************************************* */
 void MainWindow::enableTester(bool en) {
     ui->tester_tab->setEnabled(en);
@@ -399,13 +400,13 @@ void MainWindow::enableTester(bool en) {
 
 /* ********************************************************************* 
   @Function name: MainWindow::
-  @Return: (void) 
-  @Parameters: 
+  @Return: (void)
+  @Parameters:
     quint8 cmd
-	quint32 cmd_p
-	bool ok 
+    quint32 cmd_p
+    bool ok
   @Description: This SLOT get command answer
- 
+
  ********************************************************************* */
 void MainWindow::slot_CommandAnswer(quint8 cmd, quint32 cmd_p, bool ok)
 {
@@ -431,7 +432,7 @@ void MainWindow::slot_CommandAnswer(quint8 cmd, quint32 cmd_p, bool ok)
             else{
                 conState = StateDisconnected;
                 slot_Print(tr(TEXT_ERROR));
-            }            
+            }
             slot_UpdateUIState();
         }
         processStatus(cmd_p);
@@ -469,7 +470,7 @@ void MainWindow::slot_CommandAnswer(quint8 cmd, quint32 cmd_p, bool ok)
         MambaCfg.t2src.val=val;
         break;
     case FUNC_GET_PROFILEN:
-        MambaCfg.ProfieN=val;        
+        MambaCfg.ProfieN=val;
         break;
     case FUNC_GET_SIGTRIG:
         MambaCfg.DetectionConfig.ClassicTriggerValue=val;
@@ -512,11 +513,11 @@ void MainWindow::slot_CommandAnswer(quint8 cmd, quint32 cmd_p, bool ok)
 
 /* ********************************************************************* 
   @Function name: MainWindow::slot_ActivityTX
-  @Return: (void) 
-  @Parameters: 
-	bool on 
+  @Return: (void)
+  @Parameters:
+    bool on
   @Description: activity on tx symbols
- 
+
  ********************************************************************* */
 void MainWindow::slot_ActivityTX(bool on){
     ui->act_ico->set_on(on);
@@ -525,11 +526,11 @@ void MainWindow::slot_ActivityTX(bool on){
 
 /* ********************************************************************* 
   @Function name: MainWindow::activity_answer
-  @Return: (void) 
-  @Parameters: 
-	bool on 
+  @Return: (void)
+  @Parameters:
+    bool on
   @Description: activity on rx symbols
- 
+
  ********************************************************************* */
 void MainWindow::slot_ActivityRX(bool on){
     ui->act_answ_ico->set_on(on);
@@ -539,11 +540,11 @@ void MainWindow::slot_ActivityRX(bool on){
 
 /* ********************************************************************* 
   @Function name: MainWindow::slot_completedOperation
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: When finished sending block of data
- 
+
  ********************************************************************* */
 void MainWindow::slot_completedOperation(){
     if(conState == StateConfigRead){
@@ -556,11 +557,11 @@ void MainWindow::slot_completedOperation(){
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_defsetting_btn_clicked
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::on_defsetting_btn_clicked() {    
     mamba->operation(currentAddress,FUNC_DEFAULTS);
@@ -571,11 +572,11 @@ void MainWindow::on_defsetting_btn_clicked() {
 
 /* ********************************************************************* 
   @Function name: MainWindow::request_config
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::request_config() {
     conState = StateConfigRead;
@@ -612,11 +613,11 @@ void MainWindow::request_config() {
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_fromdevice_btn_clicked
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::on_fromdevice_btn_clicked() {
     request_config();
@@ -624,11 +625,11 @@ void MainWindow::on_fromdevice_btn_clicked() {
 
 /* ********************************************************************* 
   @Function name: MainWindow::slot_SetProfileN
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::slot_SetProfileN() {
     quint32 profile_n = 0;
@@ -643,11 +644,11 @@ void MainWindow::slot_SetProfileN() {
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_pwrtrig_cmb_currentIndexChanged
-  @Return: (void) 
-  @Parameters: 
-	int index 
+  @Return: (void)
+  @Parameters:
+    int index
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::on_pwrtrig_cmb_currentIndexChanged(int index){        
     mamba->operation(currentAddress,FUNC_SET_PWRTRIG,std_power_trig[index]);
@@ -656,11 +657,11 @@ void MainWindow::on_pwrtrig_cmb_currentIndexChanged(int index){
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_didown_cmb_currentIndexChanged
-  @Return: (void) 
-  @Parameters: 
-	int index 
+  @Return: (void)
+  @Parameters:
+    int index
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::on_didown_cmb_currentIndexChanged(int index){
     QString tmp = ui->didown_cmb->currentText();
@@ -672,11 +673,11 @@ void MainWindow::on_didown_cmb_currentIndexChanged(int index){
 
 /* ********************************************************************* 
   @Function name: MainWindow::slot_TamperSourceClicked
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: On tamper source control clicked to change source of tamper
- 
+
  ********************************************************************* */
 void MainWindow::slot_TamperSourceClicked(){
     TamperSetting t1;
@@ -687,20 +688,20 @@ void MainWindow::slot_TamperSourceClicked(){
     t2.bits.Acc=ui->t2acc_cb->isChecked();
     t2.bits.Pwr= ui->t2pwr_cb->isChecked();
     t2.bits.CableEnd = ui->t2cable_cb->isChecked();
-    #ifdef QT_DEBUG
-        qDebug()<<"tamper value:"<<t1.val<<t2.val;
-    #endif
+#ifdef QT_DEBUG
+    qDebug()<<"tamper value:"<<t1.val<<t2.val;
+#endif
     quint32 val32 = ( t1.val<<16) +t2.val;
     mamba->operation(currentAddress,FUNC_SET_T1T2CFG,val32,3000);
 }
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_acc_sens_sl_sliderReleased
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::on_acc_sens_sl_sliderReleased()
 {
@@ -711,11 +712,11 @@ void MainWindow::on_acc_sens_sl_sliderReleased()
 
 /* ********************************************************************* 
   @Function name: MainWindow::saveUiState
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: This function saves state of MainWindow amd controls on it
- 
+
  ********************************************************************* */
 void MainWindow::saveUiState(){
     QSettings settings("config.ini",QSettings::IniFormat);
@@ -730,17 +731,17 @@ void MainWindow::saveUiState(){
 
 /* ********************************************************************* 
   @Function name: MainWindow::loadUiState
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: Loads last saved ui state from config.ini
- 
+
  ********************************************************************* */
 void MainWindow::loadUiState() {
     QSettings settings("config.ini",QSettings::IniFormat);
     settings.beginGroup("UI");
     ui->graph->setAxisXY((double)settings.value("axis_x_dial").toInt()
-                        ,(double)settings.value("axis_y_dial").toInt());
+                         ,(double)settings.value("axis_y_dial").toInt());
     /* last opened/used port number restoring*/
     qint32  port_n = settings.value("port_n").toInt();
     if(port_n < ui->portname_cmb->count()){
@@ -748,17 +749,17 @@ void MainWindow::loadUiState() {
     }
     ui->adr_cmb->setCurrentIndex(settings.value("last_adr",0).toInt());
     ui->fwver_cmb->setCurrentIndex(settings.value("fw_ver",0).toUInt());
-    settings.endGroup();   
+    settings.endGroup();
 }
 
 
 /* ********************************************************************* 
   @Function name: MainWindow::closeEvent
-  @Return: (void) 
-  @Parameters: 
-	QCloseEvent *ev 
+  @Return: (void)
+  @Parameters:
+    QCloseEvent *ev
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::closeEvent(QCloseEvent *ev) {
     slot_shutdownSession();
@@ -770,11 +771,11 @@ void MainWindow::closeEvent(QCloseEvent *ev) {
 
 /* ********************************************************************* 
   @Function name: MainWindow::test_slot_Print
-  @Return: (void) 
-  @Parameters: 
-	const QString text 
+  @Return: (void)
+  @Parameters:
+    const QString text
   @Description: slot for print from test mode command
- 
+
  ********************************************************************* */
 void MainWindow::slot_PrintTestMode(const QString text) {
     ui->testconsole_lst->insertPlainText("\n");
@@ -815,14 +816,14 @@ void MainWindow::slot_shutdownSession(void){
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_pushButton_5_clicked
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::on_pushButton_5_clicked() {
-    mamba->operation(currentAddress, FUNC_RESET ,0,20000);    
+    mamba->operation(currentAddress, FUNC_RESET ,0,20000);
     ::Sleep(500);
     slot_shutdownSession();
     slot_Print("resetting sensor...");
@@ -831,11 +832,11 @@ void MainWindow::on_pushButton_5_clicked() {
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_pushButton_clicked
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::on_pushButton_clicked() {
     slot_Print("Rewriting configuration...");
@@ -854,11 +855,11 @@ void MainWindow::on_pushButton_clicked() {
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_pushButton_3_clicked
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::on_pushButton_3_clicked() {
     mamba->text_command("init\n");
@@ -867,11 +868,11 @@ void MainWindow::on_pushButton_3_clicked() {
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_pushButton_2_clicked
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::on_pushButton_2_clicked() {
     mamba->text_command("get status\n");
@@ -880,11 +881,11 @@ void MainWindow::on_pushButton_2_clicked() {
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_sendtxtcmd_btn_clicked
-  @Return: (void) 
-  @Parameters: 
-	 
+  @Return: (void)
+  @Parameters:
+
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::on_sendtxtcmd_btn_clicked() {
     QString tmp=ui->textcmd_ed->text()+"\n";
@@ -894,15 +895,15 @@ void MainWindow::on_sendtxtcmd_btn_clicked() {
 
 /* ********************************************************************* 
   @Function name: MainWindow::slot_runStream
-  @Return: (void) 
-  @Parameters: 
+  @Return: (void)
+  @Parameters:
     bool on - (true) stream run
   @Description: starts and stops stream
- 
+
  ********************************************************************* */
 void MainWindow::slot_runStream(bool on) {
     CommunicationProvider::StreamType_t stream_type;
-    if(on){        
+    if(on){
         if(ui->fwver_cmb->currentIndex() == 0) {
             stream_type = CommunicationProvider::Stream0A;
         }
@@ -913,7 +914,7 @@ void MainWindow::slot_runStream(bool on) {
     }
     else{
         conState = StateConnected;
-       stream_type = CommunicationProvider::StreamStop;
+        stream_type = CommunicationProvider::StreamStop;
     }
     mamba->startStream(currentAddress,5/*hz*/,stream_type);
     slot_UpdateUIState();
@@ -922,11 +923,11 @@ void MainWindow::slot_runStream(bool on) {
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_alarm_lst_clicked
-  @Return: (void) 
-  @Parameters: 
-	const QModelIndex &index 
+  @Return: (void)
+  @Parameters:
+    const QModelIndex &index
   @Description: $d
- 
+
  ********************************************************************* */
 void MainWindow::on_alarm_lst_clicked(const QModelIndex &index){
     slot_runStream(false);
@@ -936,18 +937,18 @@ void MainWindow::on_alarm_lst_clicked(const QModelIndex &index){
 
 /* ********************************************************************* 
   @Function name: MainWindow::extDateTime
-  @Return: (QDateTime) 
-  @Parameters: 
-	QString text 
+  @Return: (QDateTime)
+  @Parameters:
+    QString text
   @Description: Extract time date format from text in format
                 TIMEDATE_FORMAT
  ********************************************************************* */
 QDateTime MainWindow::extDateTime(QString text){
     QDateTime dtm;
     text.chop(text.size() - sizeof(TIMEDATE_FORMAT)+1);
-    #ifdef QT_DEBUG
-        qDebug() << text;
-    #endif
+#ifdef QT_DEBUG
+    qDebug() << text;
+#endif
     dtm = QDateTime::fromString(text, TIMEDATE_FORMAT);
     dtm = dtm.addYears(100);// need to add 100 years
     return dtm;
@@ -974,9 +975,9 @@ void MainWindow::slot_About(){
 
  ********************************************************************* */
 void MainWindow::slot_ClearData(){
-    #ifdef QT_DEBUG
-        qDebug() << "clear";
-    #endif
+#ifdef QT_DEBUG
+    qDebug() << "clear";
+#endif
 
     ui->graph->clearData();
     /*Stop recording*/
@@ -994,9 +995,9 @@ void MainWindow::slot_ClearData(){
 void MainWindow::slot_LoadFile()
 {
     QString  filename = QFileDialog::getOpenFileName(this
-                                                   ,tr("Open flle")
-                                                   , ""
-                                                   , tr("Files (*.dat)"));
+                                                     ,tr("Open flle")
+                                                     , ""
+                                                     , tr("Files (*.dat)"));
     ui->graph->load(filename);
 }
 
@@ -1012,16 +1013,16 @@ void MainWindow::slot_ConnectSensor(bool checked)
 {
     QString portname = ui->portname_cmb->currentText();
     portname.remove(portname.indexOf("("),portname.count());
-    #ifdef QT_DEBUG
-     qDebug() << portname << checked;
-    #endif
+#ifdef QT_DEBUG
+    qDebug() << portname << checked;
+#endif
     currentAddress = ui->adr_cmb->currentText().toInt();
     if(checked )    {
         if(mamba->connectToSerialPort(portname)) {
             conState = StateRequestConnect;
             mamba->operation(currentAddress,FUNC_GET_STATUS,0,500);
             return;
-        }        
+        }
     }
     else {
         conState = StateDisconnected;
@@ -1089,19 +1090,19 @@ void MainWindow::on_btnApplySavedConfig_clicked(){
 
  ********************************************************************* */
 void MainWindow::slot_SetSensitivity(){
-        if(ui->extrasens_btn->isChecked()){
-            QMessageBox::warning(0,tr("Warning")
-                                 ,tr("Extra sensitivity mode is ON now!\n"
-                                     "Depending on type of installation this may cause false alarms.")
-                                 ,QMessageBox::Ok);
-        }
-        else {
+    if(ui->extrasens_btn->isChecked()){
+        QMessageBox::warning(0,tr("Warning")
+                             ,tr("Extra sensitivity mode is ON now!\n"
+                                 "Depending on type of installation this may cause false alarms.")
+                             ,QMessageBox::Ok);
+    }
+    else {
 
-        }
-        quint16 pos= (quint16)ui->sens_rot->value();
-        pos += (quint16) (ui->extrasens_btn->isChecked()?10:0);
-        MambaCfg.PotentiometerValue = getValueByPotPosition(pos);
-        mamba->operation(currentAddress,FUNC_SET_POTVAL,MambaCfg.PotentiometerValue);
+    }
+    quint16 pos= (quint16)ui->sens_rot->value();
+    pos += (quint16) (ui->extrasens_btn->isChecked()?10:0);
+    MambaCfg.PotentiometerValue = getValueByPotPosition(pos);
+    mamba->operation(currentAddress,FUNC_SET_POTVAL,MambaCfg.PotentiometerValue);
 }
 
 /* *********************************************************************
@@ -1112,8 +1113,8 @@ void MainWindow::slot_SetSensitivity(){
   @Description: Update firmware in sensor
 
  ********************************************************************* */
- void MainWindow::slot_UpdateFirmware(void){
-     QMessageBox::information(0,tr("[Update firmware]")
-                              ,"Please contact vendor of product."
-                              ,QMessageBox::Ok);
- }
+void MainWindow::slot_UpdateFirmware(void){
+    QMessageBox::information(0,tr("[Update firmware]")
+                             ,"Please contact vendor of product."
+                             ,QMessageBox::Ok);
+}
