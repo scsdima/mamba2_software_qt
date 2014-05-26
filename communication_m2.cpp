@@ -436,11 +436,11 @@ bool CommunicationProvider::sendCommand(void)
     emit activity(1);
     emit activity_answer(0);
     QByteArray data = push_protocol(CMD.adr,CMD.cmd,CMD.param.data);  
-    if(port.isOpen()) {
+    if( port.isOpen() ) {
         bytes_count = port.write(data);
         port.flush();
     }
-    result = (bytes_count ==8);
+    result = (bytes_count == data.size());
 #ifdef QT_DEBUG
     qDebug()<<"2TX:"<<data.toHex();
 #endif
@@ -465,9 +465,8 @@ quint16 CommunicationProvider::parseInputBuffer(void)
         QByteArray in_data;
         in_data = QByteArray(inputBuffer).remove(8,inputBuffer.size());
 
-
         /* kostyl*/
-        if((uchar)in_data[3]== FUNC_GET_STREAM && inputBuffer.size() >= 16){
+        if((uchar)in_data[3] == FUNC_GET_STREAM && inputBuffer.size() >= 16){
             in_data = QByteArray(inputBuffer).remove(16,inputBuffer.size());
             if(pop_protocol(&CMD.adr, &CMD.cmd, &CMD.param.data[0], in_data)){
                 inputBuffer.remove(0,16);

@@ -23,7 +23,9 @@ message(RELEASE BUILD)
     include ($$SOURCE_DIR/version/version.pri)
 }
 
+#-------------------------------------------------
 #SOURCES
+#-------------------------------------------------
 SOURCES += \
     main.cpp\
     mainwindow.cpp \
@@ -37,7 +39,9 @@ SOURCES += \
     communication_m1.cpp \
     communication_m2.cpp
 
+#-------------------------------------------------
 #HEADERS
+#-------------------------------------------------
 HEADERS += \
     mainwindow.h \
     customtabwidget.h \
@@ -57,7 +61,9 @@ HEADERS += \
     communication_m2.h \
     communication_func.h
 
+#-------------------------------------------------
 #FORMS
+#-------------------------------------------------
 FORMS += \
     mainwindow.ui \
     graphic.ui \
@@ -79,7 +85,9 @@ win32 {
            LIBS += $$DESTDIR/qextserialport.dll
         }
 }
+unix{
 
+}
 
 RESOURCES += \
     single.qrc

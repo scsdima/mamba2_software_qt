@@ -3,7 +3,7 @@
 
   @File:mainwindow.cpp
 
-  @Project: E:\workspace_test\1
+  @Project: MAMBA2- Software
   @Date: 2014\01\09 21-15-57
   @Description: $d
 
@@ -33,10 +33,10 @@
  ********************************************************************* */
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),conState(StateDisconnected)
+    ui(new Ui::MainWindow),m_conState(StateDisconnected)
 {
     ui->setupUi(this);
-    mamba = new CommunicationProvider();
+    m_pmamba = new CommunicationProvider();
     setupCustomUi();
     loadUiState();
     loadConfigurationList() ;
@@ -68,7 +68,7 @@ void MainWindow::setupCustomUi()
 
     formSettings = new Settings(0);
     QStringList portsList;
-    mamba->getPortsList(portsList);
+    m_pmamba->getPortsList(portsList);
     ui->portname_cmb->clear();
     ui->portname_cmb->addItems(portsList);
     ui->btnReset->setVisible(false);
@@ -78,7 +78,7 @@ void MainWindow::setupCustomUi()
     ui->btnInformation->addAction(ui->actionStart_updater);
     ui->btnInformation->addAction(ui->actionSettings);
     /* sty;e for application to have buttons orange color*/
-    qApp->setStyleSheet(" QPushButton::checked {" BUTTON_SELECTED " }");
+    qApp->setStyleSheet(CUSTOM_STYLE);
     /*actions*/
     connect(ui->actionStart_updater,SIGNAL(triggered()),update,SLOT(slot_startUpdate()));
     connect(ui->actionAbout_this_tool,SIGNAL(triggered()),this,SLOT(slot_About()));
@@ -102,19 +102,19 @@ void MainWindow::setupCustomUi()
     connect(ui->t2cable_cb,SIGNAL(clicked()),this,SLOT(slot_TamperSourceClicked()));
     connect(ui->t2pwr_cb,SIGNAL(clicked()),this,SLOT(slot_TamperSourceClicked()));
     connect(ui->graph->actionApplyTrigger(),SIGNAL(triggered()),this,SLOT(slot_ApplyTriggers()));
-    connect(mamba,SIGNAL(portDisconnected()),this,SLOT(slot_shutdownSession()));
+    connect(m_pmamba,SIGNAL(portDisconnected()),this,SLOT(slot_shutdownSession()));
     connect(ui->btnUpdateFirmware,SIGNAL(clicked()),this,SLOT(slot_UpdateFirmware()));
     /* connection provider*/
-    connect(mamba,SIGNAL(textCommandAnswer(QString)),this,SLOT(slot_PrintTestMode(QString)));
+    connect(m_pmamba,SIGNAL(textCommandAnswer(QString)),this,SLOT(slot_PrintTestMode(QString)));
     //MainWindow
-    connect(mamba,SIGNAL(commandAnswer(quint8,quint32,bool))
+    connect(m_pmamba,SIGNAL(commandAnswer(quint8,quint32,bool))
             ,this,SLOT(slot_CommandAnswer(quint8,quint32,bool)));
     //Graph
-    connect(mamba,SIGNAL(commandAnswer(quint8,quint32,bool))
+    connect(m_pmamba,SIGNAL(commandAnswer(quint8,quint32,bool))
             ,this->ui->graph,SLOT(gotCommandAnswer(quint8,quint32,bool)));
-    connect(mamba,SIGNAL(operationFinished()),this,SLOT(slot_completedOperation()));
-    connect(mamba,SIGNAL(activity(bool)),this,SLOT(slot_ActivityTX(bool)));
-    connect(mamba,SIGNAL(activity_answer(bool)),this,SLOT(slot_ActivityRX(bool)));
+    connect(m_pmamba,SIGNAL(operationFinished()),this,SLOT(slot_completedOperation()));
+    connect(m_pmamba,SIGNAL(activity(bool)),this,SLOT(slot_ActivityTX(bool)));
+    connect(m_pmamba,SIGNAL(activity_answer(bool)),this,SLOT(slot_ActivityRX(bool)));
 }
 
 
@@ -132,7 +132,7 @@ void MainWindow::slot_ApplyTriggers()
 #ifdef QT_DEBUG
     qDebug()<<"trigger:"<<ui->graph->trigger1();//!!!!
 #endif
-    mamba->operation(currentAddress,FUNC_SET_CLATRIGVAL,ui->graph->trigger1());
+    m_pmamba->operation(m_currentAddress,FUNC_SET_CLATRIGVAL,ui->graph->trigger1());
 }
 
 /* ********************************************************************* 
@@ -179,11 +179,11 @@ void MainWindow::slot_PopulateUi(){
     //acc sensitivity
     ui->acc_sens_sl->setValue(MambaCfg.AccSensitivity);
     ui->accsens_ed->setText(QString::number(MambaCfg.AccSensitivity));
-    tmp=QString("-%1%").arg(MambaCfg.DigitalInSens);
-    ui->didown_cmb->setCurrentIndex(ui->didown_cmb->findText(tmp));
-    //power trigger
-    qint16  i= getPowerTriggerIndexByValue(MambaCfg.PowerTrig);
-    ui->pwrtrig_cmb->setCurrentIndex(i);
+    //tmp=QString("-%1%").arg();
+    ui->didown_sl->setValue(MambaCfg.DigitalInSens);
+    //power trigger    
+    qint32 i= getPowerTriggerIndexByValue( MambaCfg.PowerTrig);
+    ui->pwrtrig_sl->setValue(i);
     //tampers
     ui->t1acc_cb->setChecked(MambaCfg.t1src.bits.Acc);
     ui->t1pwr_cb->setChecked(MambaCfg.t1src.bits.Pwr);
@@ -307,7 +307,7 @@ void MainWindow::slot_UpdateUIState(){
     bool stream_on = false;
     bool graph_has_data = (ui->graph->dataStorageDataCount()>0);
 
-    switch(conState){
+    switch(m_conState){
     case StateDisconnected:
         connected = false;
         btn_connect_checked =  false;
@@ -422,15 +422,15 @@ void MainWindow::slot_CommandAnswer(quint8 cmd, quint32 cmd_p, bool ok)
         break;
 
     case FUNC_GET_STATUS:
-        if(conState == StateRequestConnect)
+        if(m_conState == StateRequestConnect)
         {
             if(ok) {
-                conState = StateConfigRead;
+                m_conState = StateConfigRead;
                 slot_Print(TEXT_OK);
                 request_config();
             }
             else{
-                conState = StateDisconnected;
+                m_conState = StateDisconnected;
                 slot_Print(tr(TEXT_ERROR));
             }
             slot_UpdateUIState();
@@ -457,23 +457,23 @@ void MainWindow::slot_CommandAnswer(quint8 cmd, quint32 cmd_p, bool ok)
         MambaCfg.AlarmDuration = val;
         break;
     case FUNC_GET_T1DUR:
-        MambaCfg.Tamper1Duration=val;
+        MambaCfg.Tamper1Duration = val;
         break;
     case FUNC_GET_T2DUR:
-        MambaCfg.Tamper2Duration=val;
+        MambaCfg.Tamper2Duration = val;
         break;
     case FUNC_GET_DISENS:
-        MambaCfg.DigitalInSens=val;
+        MambaCfg.DigitalInSens = val;
         break;
     case FUNC_GET_T1T2CFG:
-        MambaCfg.t1src.val=val>>16;
-        MambaCfg.t2src.val=val;
+        MambaCfg.t1src.val = val>>16;
+        MambaCfg.t2src.val = val;
         break;
     case FUNC_GET_PROFILEN:
-        MambaCfg.ProfieN=val;
+        MambaCfg.ProfieN = val;
         break;
     case FUNC_GET_SIGTRIG:
-        MambaCfg.DetectionConfig.ClassicTriggerValue=val;
+        MambaCfg.DetectionConfig.ClassicTriggerValue = val;
         break;
     case FUNC_GET_SIGTRIGSUM:
         MambaCfg.DetectionConfig.ClassicTriggerSum=val;
@@ -498,17 +498,18 @@ void MainWindow::slot_CommandAnswer(quint8 cmd, quint32 cmd_p, bool ok)
         break;
 
     case FUNC_SET_PROFILEN:
-        mamba->operation(currentAddress,FUNC_GET_PROFILEN);//reread profile n
-        mamba->operation(currentAddress,FUNC_GET_SIGTRIG);//triggers
+        m_pmamba->operation(m_currentAddress,FUNC_GET_PROFILEN);//reread profile n
+        m_pmamba->operation(m_currentAddress,FUNC_GET_SIGTRIG);//triggers
         break;
+
     default:
         break;
+
     }//switch
 
-    if(cmd>=FUNC_GET_POTVAL && cmd <FUNC_READ && ok)   {
+    if( (cmd >= FUNC_GET_POTVAL) && (cmd <FUNC_READ) && ok )   {
         slot_PopulateUi();
     }
-
 }
 
 /* ********************************************************************* 
@@ -547,8 +548,8 @@ void MainWindow::slot_ActivityRX(bool on){
 
  ********************************************************************* */
 void MainWindow::slot_completedOperation(){
-    if(conState == StateConfigRead){
-        conState = StateConnected;
+    if(m_conState == StateConfigRead){
+        m_conState = StateConnected;
         slot_Print(TEXT_OK);
         slot_PopulateUi();
     }
@@ -564,8 +565,8 @@ void MainWindow::slot_completedOperation(){
 
  ********************************************************************* */
 void MainWindow::on_defsetting_btn_clicked() {    
-    mamba->operation(currentAddress,FUNC_DEFAULTS);
-    mamba->operation(currentAddress,FUNC_RESET);
+    m_pmamba->operation(m_currentAddress,FUNC_DEFAULTS);
+    m_pmamba->operation(m_currentAddress,FUNC_RESET);
     slot_shutdownSession();
 }
 
@@ -579,35 +580,35 @@ void MainWindow::on_defsetting_btn_clicked() {
 
  ********************************************************************* */
 void MainWindow::request_config() {
-    conState = StateConfigRead;
+    m_conState = StateConfigRead;
     slot_Print("Reading configuration...");
     //common parameters
-    mamba->operation(currentAddress,FUNC_GET_POTVAL,0);//potentiometer value
-    //mamba->operation(adr,0x21,0);//baud rate
-    mamba->operation(currentAddress,FUNC_GET_DETMODE,0);//detection mode
-    mamba->operation(currentAddress,FUNC_GET_ACCSENS,0);//acc sens
-    mamba->operation(currentAddress,FUNC_GET_PWRTRIG,0);//power trigger
-    //mamba->operation(adr,0x25,0);//alarm duration
-    //mamba->operation(adr,0x26,0);//t1duration
-    //mamba->operation(adr,0x27,0);//t2 duration
-    mamba->operation(currentAddress,FUNC_GET_DISENS,0);//di sensitivity
-    mamba->operation(currentAddress,FUNC_GET_FWVER,0);
-    mamba->operation(currentAddress,FUNC_GET_PROFILEN,0);//Profile number
-    mamba->operation(currentAddress,FUNC_GET_T1T2CFG,0);//Tampers
-    mamba->operation(currentAddress,FUNC_GET_WVAL,0);
+    m_pmamba->operation(m_currentAddress,FUNC_GET_POTVAL,0);//potentiometer value
+    //m_pmamba->operation(adr,0x21,0);//baud rate
+    m_pmamba->operation(m_currentAddress,FUNC_GET_DETMODE,0);//detection mode
+    m_pmamba->operation(m_currentAddress,FUNC_GET_ACCSENS,0);//acc sens
+    m_pmamba->operation(m_currentAddress,FUNC_GET_PWRTRIG,0);//power trigger
+    //m_pmamba->operation(adr,0x25,0);//alarm duration
+    //m_pmamba->operation(adr,0x26,0);//t1duration
+    //m_pmamba->operation(adr,0x27,0);//t2 duration
+    m_pmamba->operation(m_currentAddress,FUNC_GET_DISENS,0);//di sensitivity
+    m_pmamba->operation(m_currentAddress,FUNC_GET_FWVER,0);
+    m_pmamba->operation(m_currentAddress,FUNC_GET_PROFILEN,0);//Profile number
+    m_pmamba->operation(m_currentAddress,FUNC_GET_T1T2CFG,0);//Tampers
+    m_pmamba->operation(m_currentAddress,FUNC_GET_WVAL,0);
     //C mode
-    mamba->operation(currentAddress,FUNC_GET_SIGTRIG,0);//
-    mamba->operation(currentAddress,FUNC_GET_SIGTRIGSUM,0);//
-    mamba->operation(currentAddress,FUNC_GET_SIGTRIGCTR,0);//
+    m_pmamba->operation(m_currentAddress,FUNC_GET_SIGTRIG,0);//
+    m_pmamba->operation(m_currentAddress,FUNC_GET_SIGTRIGSUM,0);//
+    m_pmamba->operation(m_currentAddress,FUNC_GET_SIGTRIGCTR,0);//
     //v mode
-    mamba->operation(currentAddress,FUNC_GET_WAVWTRIG,0);//
-    mamba->operation(currentAddress,FUNC_GET_WAVTOLERANCE,0);//
-    mamba->operation(currentAddress,FUNC_GET_WAVLVAL,0);//
-    mamba->operation(currentAddress,FUNC_GET_WAVRVAL,0);//
+    m_pmamba->operation(m_currentAddress,FUNC_GET_WAVWTRIG,0);//
+    m_pmamba->operation(m_currentAddress,FUNC_GET_WAVTOLERANCE,0);//
+    m_pmamba->operation(m_currentAddress,FUNC_GET_WAVLVAL,0);//
+    m_pmamba->operation(m_currentAddress,FUNC_GET_WAVRVAL,0);//
     //signals
-    mamba->operation(currentAddress,FUNC_GET_ANA1);//
-    mamba->operation(currentAddress,FUNC_GET_ANA2);//
-    mamba->operation(currentAddress,FUNC_GET_DEVID);//
+    m_pmamba->operation(m_currentAddress,FUNC_GET_ANA1);//
+    m_pmamba->operation(m_currentAddress,FUNC_GET_ANA2);//
+    m_pmamba->operation(m_currentAddress,FUNC_GET_DEVID);//
 }
 
 
@@ -638,7 +639,7 @@ void MainWindow::slot_SetProfileN() {
     if(ui->btnGType3->isChecked()) profile_n = 3;
     if(ui->btnGType4->isChecked()) profile_n = 4;
     if(ui->btnGType5->isChecked()) profile_n = 5;
-    mamba->operation(currentAddress,FUNC_SET_PROFILEN,profile_n);//set profile n
+    m_pmamba->operation(m_currentAddress,FUNC_SET_PROFILEN,profile_n);//set profile n
 
 }
 
@@ -650,10 +651,13 @@ void MainWindow::slot_SetProfileN() {
   @Description: $d
 
  ********************************************************************* */
-void MainWindow::on_pwrtrig_cmb_currentIndexChanged(int index){        
-    mamba->operation(currentAddress,FUNC_SET_PWRTRIG,std_power_trig[index]);
-    MambaCfg.PowerTrig = std_power_trig[index];
+void MainWindow::on_pwrtrig_sl_valueChanged(int value)
+{
+    qint32 pwrValue = getValueByPowerTriggerIndex(value);
+    m_pmamba->operation(m_currentAddress,FUNC_SET_PWRTRIG,(quint32)pwrValue);
+    MambaCfg.PowerTrig = (quint16)pwrValue;
 }
+
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_didown_cmb_currentIndexChanged
@@ -663,13 +667,12 @@ void MainWindow::on_pwrtrig_cmb_currentIndexChanged(int index){
   @Description: $d
 
  ********************************************************************* */
-void MainWindow::on_didown_cmb_currentIndexChanged(int index){
-    QString tmp = ui->didown_cmb->currentText();
-    tmp.replace("-","");
-    tmp.replace("%","");
-    mamba->operation(currentAddress,FUNC_SET_DISENS,tmp.toUInt());
-    MambaCfg.DigitalInSens=tmp.toUInt();
+void MainWindow::on_didown_sl_sliderMoved(int position)
+{
+    m_pmamba->operation(m_currentAddress,FUNC_SET_DISENS,(quint32)position);
+    MambaCfg.DigitalInSens=(quint16)position;
 }
+
 
 /* ********************************************************************* 
   @Function name: MainWindow::slot_TamperSourceClicked
@@ -682,18 +685,21 @@ void MainWindow::on_didown_cmb_currentIndexChanged(int index){
 void MainWindow::slot_TamperSourceClicked(){
     TamperSetting t1;
     TamperSetting t2;
-    t1.bits.Acc=ui->t1acc_cb->isChecked();
-    t1.bits.Pwr= ui->t1pwr_cb->isChecked();
+    t1.val = 0;
+    t2.val = 0;
+    t1.bits.Acc = ui->t1acc_cb->isChecked();
+    t1.bits.Pwr = ui->t1pwr_cb->isChecked();
     t1.bits.CableEnd = ui->t1cable_cb->isChecked();
-    t2.bits.Acc=ui->t2acc_cb->isChecked();
-    t2.bits.Pwr= ui->t2pwr_cb->isChecked();
+    t2.bits.Acc = ui->t2acc_cb->isChecked();
+    t2.bits.Pwr = ui->t2pwr_cb->isChecked();
     t2.bits.CableEnd = ui->t2cable_cb->isChecked();
 #ifdef QT_DEBUG
     qDebug()<<"tamper value:"<<t1.val<<t2.val;
 #endif
-    quint32 val32 = ( t1.val<<16) +t2.val;
-    mamba->operation(currentAddress,FUNC_SET_T1T2CFG,val32,3000);
+    quint32 val32 = ( t1.val << 16) + t2.val;
+    m_pmamba->operation(m_currentAddress,FUNC_SET_T1T2CFG,val32,3000);
 }
+
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_acc_sens_sl_sliderReleased
@@ -705,10 +711,11 @@ void MainWindow::slot_TamperSourceClicked(){
  ********************************************************************* */
 void MainWindow::on_acc_sens_sl_sliderReleased()
 {
-    MambaCfg.AccSensitivity = ui->acc_sens_sl->value();
-    mamba->operation(currentAddress,FUNC_SET_ACCSENS ,ui->acc_sens_sl->value());
+    MambaCfg.AccSensitivity = (quint8)ui->acc_sens_sl->value();
+    m_pmamba->operation(m_currentAddress, FUNC_SET_ACCSENS , ui->acc_sens_sl->value());
 }
 //saving windows controls positions
+
 
 /* ********************************************************************* 
   @Function name: MainWindow::saveUiState
@@ -728,6 +735,7 @@ void MainWindow::saveUiState(){
     settings.setValue("fw_ver",ui->fwver_cmb->currentIndex());
     settings.endGroup();
 }
+
 
 /* ********************************************************************* 
   @Function name: MainWindow::loadUiState
@@ -758,7 +766,7 @@ void MainWindow::loadUiState() {
   @Return: (void)
   @Parameters:
     QCloseEvent *ev
-  @Description: $d
+  @Description: on close window event
 
  ********************************************************************* */
 void MainWindow::closeEvent(QCloseEvent *ev) {
@@ -785,6 +793,7 @@ void MainWindow::slot_PrintTestMode(const QString text) {
     ui->testconsole_lst->setTextCursor(c);
 }
 
+
 /* *********************************************************************
   @Function name: MainWindow::slot_shutdownSession(void)
   @Return: (void)
@@ -797,7 +806,7 @@ void MainWindow::slot_shutdownSession(void){
 #ifdef QT_DEBUG
     qDebug()<<"shutdown";
 #endif
-    if(conState == StateLiveView ){
+    if(m_conState == StateLiveView ){
         slot_runStream(false);
         slot_UpdateUIState();
     }
@@ -814,6 +823,7 @@ void MainWindow::slot_shutdownSession(void){
     }
 }
 
+
 /* ********************************************************************* 
   @Function name: MainWindow::on_pushButton_5_clicked
   @Return: (void)
@@ -823,12 +833,13 @@ void MainWindow::slot_shutdownSession(void){
 
  ********************************************************************* */
 void MainWindow::on_pushButton_5_clicked() {
-    mamba->operation(currentAddress, FUNC_RESET ,0,20000);
+    m_pmamba->operation(m_currentAddress, FUNC_RESET ,0,20000);
     ::Sleep(500);
     slot_shutdownSession();
     slot_Print("resetting sensor...");
     slot_UpdateUIState();
 }
+
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_pushButton_clicked
@@ -840,16 +851,16 @@ void MainWindow::on_pushButton_5_clicked() {
  ********************************************************************* */
 void MainWindow::on_pushButton_clicked() {
     slot_Print("Rewriting configuration...");
-    mamba->operation(currentAddress,FUNC_SET_POTVAL, MambaCfg.PotentiometerValue);
-    mamba->operation(currentAddress,FUNC_SET_DETMODE,ui->detmode_cmb->currentIndex());//detection modeS
-    mamba->operation(currentAddress,FUNC_SET_CLATRIGCTR,ui->trigcnt_ed->text().toUInt());
-    mamba->operation(currentAddress,FUNC_SET_CLATRIGVAL,ui->trigval_ed->text().toUInt());
-    mamba->operation(currentAddress,FUNC_SET_CLATRUGSUM,ui->trigsum_ed->text().toUInt());
-    mamba->operation(currentAddress,FUNC_SET_WAVLVAL,ui->reflen_ed->text().toUInt());
-    mamba->operation(currentAddress,FUNC_SET_WAVRVAL,ui->buflen_ed->text().toUInt());
-    mamba->operation(currentAddress,FUNC_SET_WAVWTRIG,ui->wtrigger_ed->text().toUInt());
-    mamba->operation(currentAddress,FUNC_SET_WAVTOLERACE,ui->tolerance_ed->text().toUInt());
-    mamba->operation(currentAddress,FUNC_SET_ACCSENS,ui->accsens_ed->text().toUInt());
+    m_pmamba->operation(m_currentAddress,FUNC_SET_POTVAL, MambaCfg.PotentiometerValue);
+    m_pmamba->operation(m_currentAddress,FUNC_SET_DETMODE,ui->detmode_cmb->currentIndex());//detection modeS
+    m_pmamba->operation(m_currentAddress,FUNC_SET_CLATRIGCTR,ui->trigcnt_ed->text().toUInt());
+    m_pmamba->operation(m_currentAddress,FUNC_SET_CLATRIGVAL,ui->trigval_ed->text().toUInt());
+    m_pmamba->operation(m_currentAddress,FUNC_SET_CLATRUGSUM,ui->trigsum_ed->text().toUInt());
+    m_pmamba->operation(m_currentAddress,FUNC_SET_WAVLVAL,ui->reflen_ed->text().toUInt());
+    m_pmamba->operation(m_currentAddress,FUNC_SET_WAVRVAL,ui->buflen_ed->text().toUInt());
+    m_pmamba->operation(m_currentAddress,FUNC_SET_WAVWTRIG,ui->wtrigger_ed->text().toUInt());
+    m_pmamba->operation(m_currentAddress,FUNC_SET_WAVTOLERACE,ui->tolerance_ed->text().toUInt());
+    m_pmamba->operation(m_currentAddress,FUNC_SET_ACCSENS,ui->accsens_ed->text().toUInt());
 }
 
 
@@ -862,9 +873,10 @@ void MainWindow::on_pushButton_clicked() {
 
  ********************************************************************* */
 void MainWindow::on_pushButton_3_clicked() {
-    mamba->text_command("init\n");
+    m_pmamba->text_command("init\n");
     slot_PrintTestMode("<font color=\"blue\"><b>init<b></font>");
 }
+
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_pushButton_2_clicked
@@ -875,9 +887,10 @@ void MainWindow::on_pushButton_3_clicked() {
 
  ********************************************************************* */
 void MainWindow::on_pushButton_2_clicked() {
-    mamba->text_command("get status\n");
+    m_pmamba->text_command("get status\n");
     slot_PrintTestMode("<font color=\"blue\"><b>get status<b></font>");
 }
+
 
 /* ********************************************************************* 
   @Function name: MainWindow::on_sendtxtcmd_btn_clicked
@@ -889,9 +902,10 @@ void MainWindow::on_pushButton_2_clicked() {
  ********************************************************************* */
 void MainWindow::on_sendtxtcmd_btn_clicked() {
     QString tmp=ui->textcmd_ed->text()+"\n";
-    mamba->text_command(tmp.toLatin1());
+    m_pmamba->text_command(tmp.toLatin1());
     slot_PrintTestMode(QString("<font color=\"blue\"><b>%1<b></font>").arg(tmp));
 }
+
 
 /* ********************************************************************* 
   @Function name: MainWindow::slot_runStream
@@ -910,13 +924,13 @@ void MainWindow::slot_runStream(bool on) {
         else {
             stream_type = CommunicationProvider::Stream0F;
         }
-        conState = StateLiveView;
+        m_conState = StateLiveView;
     }
     else{
-        conState = StateConnected;
+        m_conState = StateConnected;
         stream_type = CommunicationProvider::StreamStop;
     }
-    mamba->startStream(currentAddress,5/*hz*/,stream_type);
+    m_pmamba->startStream(m_currentAddress,5/*hz*/,stream_type);
     slot_UpdateUIState();
 }
 
@@ -1016,17 +1030,17 @@ void MainWindow::slot_ConnectSensor(bool checked)
 #ifdef QT_DEBUG
     qDebug() << portname << checked;
 #endif
-    currentAddress = ui->adr_cmb->currentText().toInt();
+    m_currentAddress = ui->adr_cmb->currentText().toInt();
     if(checked )    {
-        if(mamba->connectToSerialPort(portname)) {
-            conState = StateRequestConnect;
-            mamba->operation(currentAddress,FUNC_GET_STATUS,0,500);
+        if(m_pmamba->connectToSerialPort(portname)) {
+            m_conState = StateRequestConnect;
+            m_pmamba->operation(m_currentAddress,FUNC_GET_STATUS,0,500);
             return;
         }
     }
     else {
-        conState = StateDisconnected;
-        mamba->disconnectFromSerialPort();
+        m_conState = StateDisconnected;
+        m_pmamba->disconnectFromSerialPort();
     }
     slot_UpdateUIState();
 }
@@ -1102,7 +1116,7 @@ void MainWindow::slot_SetSensitivity(){
     quint16 pos= (quint16)ui->sens_rot->value();
     pos += (quint16) (ui->extrasens_btn->isChecked()?10:0);
     MambaCfg.PotentiometerValue = getValueByPotPosition(pos);
-    mamba->operation(currentAddress,FUNC_SET_POTVAL,MambaCfg.PotentiometerValue);
+    m_pmamba->operation(m_currentAddress,FUNC_SET_POTVAL,MambaCfg.PotentiometerValue);
 }
 
 /* *********************************************************************
@@ -1118,3 +1132,4 @@ void MainWindow::slot_UpdateFirmware(void){
                              ,"Please contact vendor of product."
                              ,QMessageBox::Ok);
 }
+

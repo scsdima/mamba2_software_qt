@@ -143,7 +143,7 @@
                     POT_POS15,POT_POS16,POT_POS17,POT_POS18,
                     POT_POS19,POT_POS20 ,POT_MAX} MambaPotPosition_t;
 
-    typedef enum {PWR_7V=0,  PWR_8V, PWR_9V, PWR_10V,
+    typedef enum {PWR_7V,  PWR_8V, PWR_9V, PWR_10V,
                   PWR_11V, PWR_12V, PWR_13V, PWR_14V,
                   PWR_15V, PWR_MAX} MambaPowerVoltage_t;
 
@@ -190,7 +190,7 @@
   @Description: $d
  
  ********************************************************************* */
-    inline static qint16 getPotPositionByValue(quint16 val){
+    static qint16 getPotPositionByValue(quint16 val){
         return __getIndexOf__(val, std_pot_values , POT_MAX);
     }
 
@@ -202,8 +202,8 @@
   @Description: $d
  
  ********************************************************************* */
-    inline static qint16 getValueByPotPosition(quint16 val){
-        return std_pot_values[val];
+   static qint16 getValueByPotPosition(quint16 val){
+        return (val<POT_MAX)? std_pot_values[val]: (-1);
     }
 
     /* if out of range returns -1*/
@@ -216,8 +216,8 @@
   @Description: $d
  
  ********************************************************************* */
-    inline static qint16 getPowerTriggerIndexByValue(quint16 val){
-        return __getIndexOf__(val, std_power_trig, PWR_MAX);
+   static qint16 getPowerTriggerIndexByValue(quint16 val){
+        return __getIndexOf__(val, std_power_trig, PWR_MAX)+7;
     }
 
 /* ********************************************************************* 
@@ -228,8 +228,8 @@
   @Description: $d
  
  ********************************************************************* */
-    inline static qint16 getValueByPowerTriggerIndex(quint16 val){
-        return __getIndexOf__(val, std_power_trig, PWR_MAX);
+    static qint16 getValueByPowerTriggerIndex(quint16 val){
+        return ((val-7)<PWR_MAX) ? std_power_trig[val-7]: (-1);
     }
 
 
@@ -241,7 +241,7 @@
   @Description: $d
  
  ********************************************************************* */
-    inline static double convertToMambaVoltage(quint16 value) {
+   static double convertToMambaVoltage(quint16 value) {
         double voltage = (double)value*((double)MAMBA_VDD/MAMBA_ADC_RES);
         return voltage;
     }
@@ -255,7 +255,7 @@
   @Description: $d
  
  ********************************************************************* */
-    inline static quint16 convertVoltageToMamba(double voltage) {
+    static quint16 convertVoltageToMamba(double voltage) {
         double value = (double)(voltage * MAMBA_ADC_RES / MAMBA_VDD );
         return (quint16)value;
     }
@@ -269,7 +269,7 @@
   @Description: $d
  
  ********************************************************************* */
-    inline static double mVoltagePerPoint()    {
+    static double mVoltagePerPoint()    {
         return ((double)SYSTEM_POWER/(double)MAMBA_ADC_RES);
     }
 
@@ -282,7 +282,7 @@
   @Description: $d
  
  ********************************************************************* */
-    inline  static double toAnalogVoltage(double voltage) {
+    static double toAnalogVoltage(double voltage) {
         return ((double)voltage*mVoltagePerPoint());
     }
 
@@ -294,7 +294,7 @@
   @Description: $d
  
  ********************************************************************* */
-     inline static  double fromVoltage(double voltage)     {
+     static  double fromVoltage(double voltage)     {
         return ((double)voltage/mVoltagePerPoint());
     }
 
@@ -306,7 +306,7 @@
   @Description: $d
  
  ********************************************************************* */
-     inline static double toADCValue(double voltage)      {
+     static double toADCValue(double voltage)      {
         return ((double)voltage/mVoltagePerPoint());
     }
 

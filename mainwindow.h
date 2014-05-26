@@ -18,20 +18,28 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+
+
 private:
     /* ui*/
     Ui::MainWindow *ui;
     /* forms*/
     Settings *formSettings;
 
-    CommunicationProvider *mamba;
-    quint8 currentAddress;// current device address;
+    CommunicationProvider *m_pmamba;
+    quint8 m_currentAddress;// current device address;
     QDateTime extDateTime(QString text);
 
-    enum {StateDisconnected, StateRequestConnect, StateConfigRead, StateConnected,StateLiveView} conState;
+    typedef  enum {
+        StateDisconnected,
+        StateRequestConnect,
+        StateConfigRead,
+        StateConnected,
+        StateLiveView} ConnectionState;
 
+    ConnectionState m_conState;
     void closeEvent(QCloseEvent *);
-    void setupCustomUi();        
+    void setupCustomUi(void);
     void loadConfigurationList(void);
     void request_config(void);    
     void processStatus(quint32 val);
@@ -41,9 +49,9 @@ private:
 
 
 private slots:
-    void slot_ActivityTX(bool on);
+    void slot_ActivityTX(bool on);/* main screen communication blinker*/
     void slot_ActivityRX(bool on);
-    void slot_CommandAnswer(quint8 cmd,quint32 cmd_p,bool ok);
+    void slot_CommandAnswer(quint8 cmd, quint32 cmd_p, bool ok);
     void slot_ApplyTriggers();
     void slot_TamperSourceClicked();
     void slot_Print(const QString text);
@@ -67,8 +75,6 @@ private slots:
     void on_tofile_btn_clicked();    
     void on_defsetting_btn_clicked();
     void on_fromdevice_btn_clicked();
-    void on_pwrtrig_cmb_currentIndexChanged(int index);
-    void on_didown_cmb_currentIndexChanged(int index);    
     void on_acc_sens_sl_sliderReleased();
     void on_pushButton_5_clicked();
     void on_pushButton_clicked();
@@ -76,9 +82,9 @@ private slots:
     void on_pushButton_2_clicked();
     void on_sendtxtcmd_btn_clicked();
     void on_alarm_lst_clicked(const QModelIndex &index);    
-
-
     void on_btnApplySavedConfig_clicked();
+    void on_didown_sl_sliderMoved(int position);
+    void on_pwrtrig_sl_valueChanged(int value);
 };
 
 #endif // MAINWINDOW_H
