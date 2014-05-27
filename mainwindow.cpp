@@ -78,7 +78,11 @@ void MainWindow::setupCustomUi()
     ui->btnInformation->addAction(ui->actionStart_updater);
     ui->btnInformation->addAction(ui->actionSettings);
     /* sty;e for application to have buttons orange color*/
-    qApp->setStyleSheet(CUSTOM_STYLE);
+    //qApp->setStyleSheet(CUSTOM_STYLE);
+    QFile file( ":/stylesheet.css" );
+    file.open(QFile::ReadOnly);
+    qApp->setStyleSheet(QString(file.readAll()));
+    file.close();
     /*actions*/
     connect(ui->actionStart_updater,SIGNAL(triggered()),update,SLOT(slot_startUpdate()));
     connect(ui->actionAbout_this_tool,SIGNAL(triggered()),this,SLOT(slot_About()));
@@ -977,7 +981,10 @@ QDateTime MainWindow::extDateTime(QString text){
 
  ********************************************************************* */
 void MainWindow::slot_About(){
-    QMessageBox::information(this,tr("About"),QString(about_text));
+    QFile file(":/about.htm");
+    file.open(QFile::ReadOnly);
+    QMessageBox::information(this,tr("About"),QString(file.readAll()).arg(VERSION).arg(VERSION_DATE));
+    file.close();
 }
 
 /* *********************************************************************

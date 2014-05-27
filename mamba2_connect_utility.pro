@@ -15,14 +15,13 @@ SOURCE_DIR = $$PWD
 DESTDIR = $$SOURCE_DIR/../mamba2_connect_utility_build/
 
 CONFIG(debug, debug|release|final) {
-    message(DEBUG BUILD)
-    DEFINES += QT_DEBUG
+DEFINES += QT_DEBUG
 }
-CONFIG(release, debug|release|final) {
-    message(RELEASE BUILD)    
+CONFIG(release, debug|release|final){
+message(RELEASE BUILD)
 }
-CONFIG(final, debug|release|final) {
-    message(FINAL RELEASE BUILD)
+CONFIG(final, debug|release|final){
+message(>>>FINAL<<<)
     include ($$SOURCE_DIR/version/version.pri)
 }
 

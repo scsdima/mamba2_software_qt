@@ -1,3 +1,3 @@
-win32: GENERATE_VERSION=vrgen.exe
+win32: GENERATE_VERSION=vrgen.cmd
 system($$GENERATE_VERSION)
 
