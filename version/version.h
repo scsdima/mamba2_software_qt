@@ -1,4 +1,5 @@
 #ifndef VERSION_H 
 #define VERSION_H
-#define VERSION_DATE "Mon May 26 20:55:20 2014"
+#define VERSION "01.0001"
+#define VERSION_DATE "Tue May 27 11:29:32 2014"
 #endif

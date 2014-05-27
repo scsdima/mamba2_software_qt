@@ -22,5 +22,6 @@
         <file>images/Info-icon.png</file>
         <file>images/control.png</file>
         <file>images/ti.png</file>
+        <file>mamba_stylesheet.css</file>
     </qresource>
 </RCC>
