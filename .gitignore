@@ -1,0 +1,8 @@
+ui_*
+MakeFile*
+*.pro.*
+*.pro.user.*
+ui_*.*
+object_script.*
+*.pro.user
+Makefile.*
