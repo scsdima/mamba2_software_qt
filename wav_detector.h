@@ -3,49 +3,74 @@
 
 
     #ifdef __cplusplus
-        extern "C"{
+
+extern "C"{
+
 
     #endif
 
     #define ABS(X) ((X)<0?(-(X)):(X))
 
-        typedef     signed int INT32 ;
-        typedef     unsigned int UINT32 ;
-        typedef     unsigned short UINT16 ;
-        typedef     unsigned char UINT8 ;
-        typedef     signed char INT8;
+
+typedef     signed int INT32 ;
+typedef     unsigned int UINT32 ;
+typedef     unsigned short UINT16 ;
+typedef     unsigned char UINT8 ;
+typedef     signed char INT8;
+
+#ifndef FALSE
+#define  FALSE 0
+#endif
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#define MAXIMUM_LVAL (20)
+#define MAXIMUM_RVAL (20)
+#define QUIET_SIGNAL_WLEV (10)
+#define NORMAL_SIGNAL_WLEV (1000)
 
     typedef struct {
-        //dynamic values
-        INT32 last_vs[10];      //last values
-        UINT32 last_v;          //last value
-        INT32 av_col_vs[20];    //average color values
-        UINT8 av_col_vs_i;      //last average color index
-        UINT8 last_vs_i;        //last value index
-        INT32 avlv;             //last value
-        INT32 cur_v;            //curent value
-        INT32 next_v;           //next value
-        INT32 ref_v;            //ref values
-        INT32 wval;             //acceleration value
+    INT32 wtrigger; //acceleration trigger
+    INT32 tolerance;
+    UINT8 lval_cnt;
+    UINT8 rval_cnt;
+} VideoCounterConfig_t;
 
-        struct{
-            unsigned alarm:1;
-            unsigned firststart:1; //
-        }status;
-        struct{
-            INT32   wtrigger;       //acceleration trigge
-            INT32 tolerance;
-            INT8 l_val;
-            INT8 r_val;
-        }config;
-    }VideoCounter_t;
+typedef volatile struct {
+    //dynamic values
+    INT32 last_v_buf[MAXIMUM_LVAL]; //last values buffer
+    UINT8 last_v_idx; //last value index
+    UINT32 last_v; //last value
 
-    void vcInit(VideoCounter_t *);
-    UINT8 vcAddNewValue(VideoCounter_t*,UINT16 );
+    INT32 ref_v_buf[MAXIMUM_RVAL]; //color values for refference color
+    UINT8 ref_v_idx; //last average color index
+    INT32 ref_v; //ref color value
 
-    void vc_setup(VideoCounter_t *,INT32 tolerance,INT32 trig,INT8 l_values,INT8 r_values);
-    void vc_result(VideoCounter_t *,UINT16 *value,UINT16 *time);
-    #ifdef __cplusplus
-        }
-    #endif
+    INT32 avlv; //average value
+    INT32 cur_v; //curent value
+    INT32 next_v; //next value
+    INT32 wval; //acceleration value
+
+    struct {
+        unsigned alarm : 1;
+        unsigned warning : 1;
+        unsigned firststart : 1; //
+    } status;
+
+    VideoCounterConfig_t config;
+} VideoCounter_t;
+
+void    vcInit(VideoCounter_t *vc);
+UINT8   vcAddNewValue(VideoCounter_t *vc, UINT16 val);
+void    vc_setup(VideoCounter_t *vc, INT32 tolerance, INT32 trig
+    , INT8 lval_cnt, INT8 rval_cnt);
+void    vc_result(VideoCounter_t *vc, UINT16 *value, UINT16 *time);
+
+#ifdef __cplusplus
+}
 #endif
+#endif
+
+

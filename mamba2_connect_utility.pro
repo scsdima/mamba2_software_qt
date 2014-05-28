@@ -19,6 +19,7 @@ DEFINES += QT_DEBUG
 }
 CONFIG(release, debug|release|final){
 message(RELEASE BUILD)
+DEFINES += QT_DEBUG
 }
 CONFIG(final, debug|release|final){
 message(>>>FINAL<<<)
