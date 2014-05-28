@@ -187,7 +187,22 @@ void Graphic::setupGraphic()
 
     QwtPlotCurve *curve;
     QColor color;
+
     // add curves
+    curve =new QwtPlotCurve(tr("Detection"));
+    color = Qt::red;
+    color.setAlpha(10);
+    curve->setPen(QPen(color,3));
+    curve->attach(plot);
+    QBrush brush;
+    brush.setStyle(Qt::Dense3Pattern);
+    brush.setColor(Qt::red);
+    curve->setBrush(brush);
+    line[2].curve = curve;
+
+    line[3].curve = curve;
+
+
     curve =new QwtPlotCurve("C signal");
     color = Qt::yellow;
     color.setAlpha(255);
@@ -202,12 +217,8 @@ void Graphic::setupGraphic()
     line[1].curve = curve;
     curve->attach(plot);
 
-    curve =new QwtPlotCurve(tr("Detection"));
-    color = Qt::red;
-    color.setAlpha(255);
-    curve->setPen(QPen(color,3));
-    line[2].curve = curve;
-    curve->attach(plot);
+
+
 
 
     plot->setAutoFillBackground(1);
@@ -310,6 +321,7 @@ void Graphic::setupGraphic()
     showCurve(line[0].curve,true);
     showCurve(line[1].curve,false);
     showCurve(line[2].curve,false);
+    showCurve(line[3].curve,false);
 
     //inititalizing data storer    
     scale_x = this->axis_x_dial->value();
@@ -457,6 +469,7 @@ void Graphic::moved(const QPoint &point)
 void Graphic::showCurve(QwtPlotItem *item, bool on)
 {
     item->setVisible(on);
+    line[3].curve->setVisible(line[2].curve->isVisible());
     if(item == line[0].curve)    {
         d_marker1_cable1->setVisible(item->isVisible());
         d_marker2_cable1->setVisible(item->isVisible());
@@ -616,7 +629,7 @@ void Graphic::setupTriggers(quint32 wtrig,quint32 trigcnt,quint32 trigsum,quint3
     d_marker1_cable2->setValue(wtrig,wtrig/1000);
     d_marker2_cable2->setVisible(0);
 
-    this->wtrig_lb->setText(tmp.sprintf("<b>Wt trig</b>=%d",wtrig));
+    this->wtrig_lb->setText(tmp.sprintf("<b>Wt trig</b>=%u",wtrig));
     this->trigcnt_lb->setText(tmp.sprintf("<b>trigger counter</b>=%d",trigcnt));
     this->trigsum_lb->setText(tmp.sprintf("<b>trigger summa</b>=%d",trigsum));
     this->trigval_lb->setText(tmp.sprintf("<b>trigger</b>=%5.0fmV", toVoltage(trig)));
@@ -802,7 +815,7 @@ void Graphic::applyData(double voltage)
 
     //populating data
     cur_voltage_lb->setText(tmp.sprintf("<b>signal</b>=%5.2f mV",voltage));
-    w_val_lb->setText(tmp.sprintf("<b>Wt</b>=%6u",(qint32)vc.wval));
+    w_val_lb->setText(tmp.sprintf("<b>Wt</b>=%d",(qint32)vc.wval));
     v0_v1_lb->setText(tmp.sprintf("<b>v0-v1</b>=%5.2f mV",old_voltage-voltage));
     old_voltage=voltage;
 
@@ -920,6 +933,8 @@ void Graphic::updateGraphic(void)
                 point3.setX(i);
                 point3.setY(st.bits.Alarm?scale_y:0);
                 line[2].data.append(point3);
+                point3.setY(st.bits.Alarm?-scale_y:0);
+                line[3].data.append(point3);
 
                 //line[3].data.append(point4);
                 //qDebug()<<point;
@@ -948,6 +963,7 @@ void Graphic::updateGraphic(void)
     line[0].curve->setSamples(line[0].data);
     line[1].curve->setSamples(line[1].data);
     line[2].curve->setSamples(line[2].data);
+    line[3].curve->setSamples(line[3].data);
     updateSlider();
     plot->replot();
 }
