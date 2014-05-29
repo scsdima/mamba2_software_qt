@@ -4,7 +4,7 @@
   @File:mainwindow.cpp
 
   @Project: MAMBA2- Software
-  @Date: 2014\01\09 21-15-57
+  @File info : D.Chikov   2014\01\09 21-15-57
   @Description: $d
 
 

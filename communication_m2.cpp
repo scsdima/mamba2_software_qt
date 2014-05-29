@@ -5,7 +5,7 @@
  @File:communication.cpp
 
  @Project: E:\workspace_test\1
- @Date: 2014\01\09 21-21-13
+ @File info : D.Chikov   2014\01\09 21-21-13
  @Description: $d
 
 

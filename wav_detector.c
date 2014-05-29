@@ -4,7 +4,7 @@
   @File:wav_detector.c
 
   @Project: E:\workspace_test\1
-  @Date: 2014\01\09 21-25-36
+  @File info : D.Chikov   2014\01\09 21-25-36
   @Description: $d
 
 

@@ -4,7 +4,7 @@
   @File:graphic.cpp
 
   @Project: E:\workspace_test\1
-  @Date: 2014\01\09 21-39-05
+  @File info : D.Chikov   2014\01\09 21-39-05
   @Description: $d
 
 

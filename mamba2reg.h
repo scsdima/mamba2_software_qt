@@ -4,7 +4,7 @@
   @File:mamba2reg.h
 
   @Project: E:\workspace_test\1
-  @Date: 2014\01\09 21-29-14
+  @File info : D.Chikov   2014\01\09 21-29-14
   @Description: $d
 
 

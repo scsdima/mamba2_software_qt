@@ -4,7 +4,7 @@
   @File:customicon.cpp
 
   @Project: E:\workspace_test\1
-  @Date: 2014\01\09 21-23-11
+  @File info : D.Chikov   2014\01\09 21-23-11
   @Description: $d
 
 

@@ -4,7 +4,7 @@
   @File:downloadupdate.cpp
 
   @Project: E:\workspace_test\1
-  @Date: 2014\01\09 21-39-34
+  @File info : D.Chikov   2014\01\09 21-39-34
   @Description: $d
 
 
